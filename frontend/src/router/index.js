@@ -43,6 +43,9 @@ const router = createRouter({
 router.beforeEach((to) => {
   const token = localStorage.getItem('token')
   const role = localStorage.getItem('role')
+  if (token && (to.path === '/login' || to.path === '/register')) {
+    return role === 'ADMIN' ? '/admin' : '/'
+  }
   if (to.path.startsWith('/admin') && role !== 'ADMIN') {
     return '/login'
   }

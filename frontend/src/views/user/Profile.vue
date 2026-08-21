@@ -36,6 +36,7 @@ onMounted(async () => {
 
 async function save() {
   await request.put('/auth/profile', form.value)
+  userStore.updateUserInfo(form.value)
   ElMessage.success('保存成功')
 }
 

@@ -26,7 +26,7 @@
       </el-table-column>
     </el-table>
     <div style="margin-top:16px;display:flex;justify-content:flex-end;gap:10px">
-      <el-button type="primary" @click="$router.push('/checkout')">去结算</el-button>
+      <el-button type="primary" :disabled="!items.length" @click="$router.push('/checkout')">去结算</el-button>
     </div>
   </el-card>
 </template>
@@ -39,7 +39,8 @@ import { ElMessage } from 'element-plus'
 const items = ref([])
 
 async function load() {
-  items.value = await request.get('/cart')
+  const data = await request.get('/cart')
+  items.value = Array.isArray(data) ? data : []
 }
 
 async function updateQuantity(row, v) {

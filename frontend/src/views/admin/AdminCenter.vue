@@ -73,12 +73,16 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, onMounted, watch } from 'vue'
+import { useRoute } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Refresh } from '@element-plus/icons-vue'
 import request from '../../api/request'
 
-const activeTab = ref('catalog')
+const route = useRoute()
+const availableTabs = ['catalog', 'trade', 'afterSale', 'model', 'tools', 'guide']
+const routeTab = () => availableTabs.includes(route.query.tab) ? route.query.tab : 'catalog'
+const activeTab = ref(routeTab())
 const categories = ref([]); const brands = ref([]); const orders = ref([]); const reviews = ref([]); const rules = ref([])
 const models = ref([]); const prompts = ref([]); const tools = ref([]); const toolLogs = ref([]); const guideTasks = ref([]); const recommendations = ref([])
 const dialog = reactive({ visible: false, title: '', type: '', form: {} })
@@ -104,6 +108,7 @@ async function loadAi() { [models.value, prompts.value, tools.value, toolLogs.va
 async function loadAll() { await Promise.all([loadCatalog(), loadTrade(), loadAfterSale(), loadAi()]) }
 function orderStatus(status) { return ({ 0: '待支付', 1: '待发货', 2: '已发货', 3: '已完成', 4: '已取消' })[status] || '未知' }
 function orderStatusType(status) { return ({ 0: 'warning', 1: 'primary', 2: 'success', 3: 'success', 4: 'info' })[status] || 'info' }
+watch(() => route.query.tab, () => { activeTab.value = routeTab() })
 onMounted(loadAll)
 </script>
 
@@ -114,7 +119,7 @@ onMounted(loadAll)
 .muted { color: #909399; font-size: 13px; }
 .section-panel { border: 1px solid #ebeef5; padding: 14px; margin-bottom: 16px; }
 .section-title { font-weight: 600; margin-bottom: 12px; }
-.sub-heading { font-weight: 600; margin: 24px 0 12px; padding-left: 10px; border-left: 3px solid #409eff; }
+.sub-heading { font-weight: 600; margin: 24px 0 12px; padding-left: 10px; border-left: 3px solid var(--brand); }
 .toolbar { margin-bottom: 12px; }
 .secret-notice { margin-bottom: 16px; }
 </style>

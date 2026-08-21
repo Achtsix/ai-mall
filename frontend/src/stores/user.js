@@ -15,6 +15,10 @@ export const useUserStore = defineStore('user', {
       localStorage.setItem('role', this.role)
       localStorage.setItem('userInfo', JSON.stringify(data.user || {}))
     },
+    updateUserInfo(data) {
+      this.userInfo = { ...(this.userInfo || {}), ...data }
+      localStorage.setItem('userInfo', JSON.stringify(this.userInfo))
+    },
     logout() {
       this.token = ''
       this.role = ''

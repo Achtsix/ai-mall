@@ -2,15 +2,15 @@
   <el-container class="admin-layout">
     <el-aside width="250px" class="aside">
       <div class="admin-logo"><span class="mark">AI</span><span><b>AI 智能商城</b><small>导购系统管理后台</small></span></div>
-      <el-menu :default-active="$route.path" router background-color="#071b2b" text-color="#b9cbd4" active-text-color="#fff">
+      <el-menu :default-active="$route.fullPath" router background-color="#171b21" text-color="#b9bec7" active-text-color="#fff">
         <el-menu-item index="/admin">⌂　商城首页</el-menu-item>
         <el-sub-menu index="mall"><template #title>▣　商城管理</template>
           <el-menu-item index="/admin/users">用户管理</el-menu-item>
           <el-menu-item index="/admin/products">商品管理</el-menu-item>
-          <el-menu-item index="/admin/center">订单、评价与售后</el-menu-item>
+          <el-menu-item index="/admin/center?tab=trade">订单、评价与售后</el-menu-item>
         </el-sub-menu>
         <el-sub-menu index="ai-config"><template #title>⚙　AI 基础配置</template>
-          <el-menu-item index="/admin/center">模型、Prompt 与工具</el-menu-item>
+          <el-menu-item index="/admin/center?tab=model">模型、Prompt 与工具</el-menu-item>
         </el-sub-menu>
         <el-sub-menu index="rag"><template #title>▤　AI 知识库（RAG）</template>
           <el-menu-item index="/admin/knowledge">知识库与向量索引</el-menu-item>
@@ -55,7 +55,9 @@ function logout() {
 .admin-layout :deep(.el-menu), .admin-layout :deep(.el-menu-item), .admin-layout :deep(.el-sub-menu__title) { user-select: none; }
 .admin-layout :deep(.el-menu-item), .admin-layout :deep(.el-sub-menu__title) { transition: none; }
 .admin-layout :deep(.el-menu-item::selection), .admin-layout :deep(.el-sub-menu__title::selection) { background: transparent; }
-.aside { background: #071b2b; }.admin-logo { color: #fff; font-weight: 800; padding: 22px 18px; font-size: 16px; display:flex; align-items:center; gap:10px; user-select:none; }.admin-logo b{display:block}.admin-logo small{display:block;color:#86a8b7;font-size:11px;font-weight:400;margin-top:4px}.mark{width:36px;height:36px;display:grid;place-items:center;border-radius:50%;background:#58c8e9;color:#fff;font-size:12px;border:3px solid #bceaf5}
-.admin-header { display: flex; align-items: center; justify-content: space-between; background: #fff; border-bottom: 1px solid #e6edf1; padding:0 28px; }.crumb{display:flex;gap:10px;align-items:center;color:#8295a0;font-size:13px}.crumb b{color:#15283a;font-size:17px}.crumb i{color:#bcc8ce}.admin-user{color:#526a78}.admin-avatar{display:inline-grid;place-items:center;width:34px;height:34px;border-radius:50%;background:#eac9ae;color:#6b4c32;margin-right:8px;font-weight:700}
-.admin-main { background: #f5f6f8; }
+.aside { background: var(--tech); border-right:1px solid #2b3038; }.admin-logo { color: #fff; font-weight: 800; padding: 22px 18px; font-size: 16px; display:flex; align-items:center; gap:10px; user-select:none; }.admin-logo b{display:block}.admin-logo small{display:block;color:#9299a4;font-size:11px;font-weight:400;margin-top:4px}.mark{width:36px;height:36px;display:grid;place-items:center;border-radius:7px;background:var(--brand);color:#fff;font-size:12px;box-shadow:0 0 0 4px rgba(242,85,61,.16)}
+.aside :deep(.el-menu){border-right:0}.aside :deep(.el-menu-item:hover),.aside :deep(.el-sub-menu__title:hover){background:#232830!important;color:#fff}.aside :deep(.el-menu-item.is-active){background:linear-gradient(90deg,rgba(242,85,61,.22),rgba(242,85,61,.04))!important;border-right:3px solid var(--brand)}
+.admin-header { display: flex; align-items: center; justify-content: space-between; background: #fff; border-bottom: 1px solid var(--line); padding:0 28px; }.crumb{display:flex;gap:10px;align-items:center;color:#8a9099;font-size:13px}.crumb b{color:var(--ink);font-size:17px}.crumb i{color:#c4c8ce}.admin-user{color:#59616b}.admin-avatar{display:inline-grid;place-items:center;width:34px;height:34px;border-radius:7px;background:var(--brand-soft);color:var(--brand);margin-right:8px;font-weight:700}
+.admin-main { background: var(--page); }
+@media(max-width:900px){.aside{width:210px!important}.crumb span,.crumb i{display:none}.admin-user{display:none}.admin-main{padding:16px}}
 </style>
