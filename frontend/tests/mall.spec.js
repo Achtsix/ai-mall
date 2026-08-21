@@ -1,0 +1,102 @@
+import { test, expect } from '@playwright/test'
+
+async function login(page, username, password = '123456') {
+  await page.goto('/login')
+  await page.getByPlaceholder('请输入商城账号').fill(username)
+  await page.getByPlaceholder('请输入登录密码').fill(password)
+  await page.getByRole('button', { name: '进入商城' }).click()
+  await expect(page).not.toHaveURL(/\/login$/)
+}
+
+test.describe.serial('AI 商城核心流程', () => {
+  test('用户端浏览、筛选、购物车、支付和个人资料', async ({ page }) => {
+    await login(page, 'user')
+    await expect(page.getByText('智选商城').first()).toBeVisible()
+
+    await page.getByRole('menuitem', { name: '商品', exact: true }).click()
+    await page.getByPlaceholder('搜索商品名称、卖点、品牌或规格').fill('SoundPro')
+    await page.getByRole('button', { name: '搜索' }).click()
+    await expect(page.locator('.product-grid .el-loading-mask')).toHaveCount(0)
+    const productCard = page.locator('.product-card').filter({
+      hasText: 'SoundPro Mini 真无线耳机'
+    })
+    await expect(productCard).toBeVisible()
+    await productCard.click()
+    await expect(page.getByRole('heading', { name: 'SoundPro Mini 真无线耳机' })).toBeVisible()
+    const imageLoaded = await page.locator('.main-image img').evaluate(image => image.complete && image.naturalWidth > 0)
+    expect(imageLoaded).toBeTruthy()
+    await page.getByText('AI 问答', { exact: true }).click()
+    await expect(page.getByText('AI 会结合当前商品资料')).toBeVisible()
+    await page.getByRole('button', { name: '加入购物车' }).click()
+    await expect(page.getByText('已加入购物车')).toBeVisible()
+
+    await page.goto('/address')
+    await page.getByRole('button', { name: '新增地址' }).click()
+    const dialog = page.getByRole('dialog', { name: '新增地址' })
+    const inputs = dialog.locator('input')
+    await inputs.nth(0).fill('测试收件人')
+    await inputs.nth(1).fill('13800000000')
+    await inputs.nth(2).fill('广东省 深圳市 南山区')
+    await inputs.nth(3).fill('科技园基准测试地址 1 号')
+    await dialog.getByRole('button', { name: '保存' }).click()
+    await expect(page.getByText('科技园基准测试地址 1 号')).toBeVisible()
+
+    await page.goto('/cart')
+    await expect(page.getByText('SoundPro Mini 真无线耳机')).toBeVisible()
+    await page.getByRole('button', { name: '去结算' }).click()
+    await page.locator('.el-select').click()
+    await page.locator('.el-select-dropdown__item').first().click()
+    await page.getByRole('button', { name: '提交订单' }).click()
+    await expect(page).toHaveURL(/\/orders$/)
+    const payButton = page.getByRole('button', { name: '支付' }).first()
+    await expect(payButton).toBeVisible()
+    await payButton.click()
+    await expect(page.getByText('支付成功')).toBeVisible()
+    await expect(page.getByText('已支付').first()).toBeVisible()
+
+    await page.goto('/wallet')
+    await expect(page.getByText('我的钱包').first()).toBeVisible()
+    await page.goto('/profile')
+    const nickname = page.locator('.el-form-item').filter({ hasText: '昵称' }).locator('input')
+    await nickname.fill('基准测试用户')
+    await page.getByRole('button', { name: '保存' }).click()
+    await expect(page.getByText('保存成功')).toBeVisible()
+    await expect(page.getByText('基准测试用户').first()).toBeVisible()
+
+    await page.goto('/ai-guide')
+    await expect(page.getByRole('heading', { name: '把需求交给我，帮你选得更合适' })).toBeVisible()
+    await expect(page.getByText('Agent 执行时间线')).toHaveCount(0)
+  })
+
+  test('管理员端核心入口一一对应', async ({ browser }) => {
+    const context = await browser.newContext({ viewport: { width: 1440, height: 900 } })
+    const page = await context.newPage()
+    await login(page, 'admin')
+    await expect(page).toHaveURL(/\/admin$/)
+    await expect(page.getByRole('heading', { name: '管理后台工作台' })).toBeVisible()
+
+    await page.getByRole('button').filter({ hasText: '商品管理' }).click()
+    await expect(page.getByRole('main').getByText('商品管理', { exact: true })).toBeVisible()
+    await page.goto('/admin/center?tab=model')
+    await expect(page.getByRole('tab', { name: '模型与 Prompt' })).toHaveAttribute('aria-selected', 'true')
+    await page.goto('/admin/knowledge')
+    await expect(page.getByRole('main').getByText('商品知识库管理')).toBeVisible()
+    await page.goto('/admin/agents')
+    await expect(page.getByRole('main').getByText('Agent 运行记录')).toBeVisible()
+    await page.goto('/admin/operation')
+    await expect(page.getByRole('heading', { name: '评价分析与运营报告' })).toBeVisible()
+    await context.close()
+  })
+
+  test('移动端登录和导航无溢出阻塞', async ({ browser }) => {
+    const context = await browser.newContext({ viewport: { width: 390, height: 844 } })
+    const page = await context.newPage()
+    await login(page, 'user')
+    await expect(page.getByText('智选商城').first()).toBeVisible()
+    await expect(page.getByRole('menuitem', { name: '商城首页' })).toBeVisible()
+    await page.getByRole('menuitem', { name: '商品', exact: true }).click()
+    await expect(page.getByRole('heading', { name: '找到更适合你的商品' })).toBeVisible()
+    await page.screenshot({ path: 'test-results/mobile-products.png', fullPage: true })
+    await context.close()
+  })
+})

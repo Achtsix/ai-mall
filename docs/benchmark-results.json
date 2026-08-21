@@ -1,0 +1,168 @@
+{
+  "facts" : {
+    "databaseTables" : 27,
+    "userRoutes" : 10,
+    "products" : 20,
+    "knowledgeDocuments" : 20,
+    "configuredTools" : 7,
+    "searchConditions" : [ "keyword", "categoryId", "brandId", "minPrice", "maxPrice" ],
+    "chunkMaxChars" : 420,
+    "chunkOverlapChars" : 60,
+    "agentMaxSteps" : 8
+  },
+  "search" : {
+    "sampleSize" : 40,
+    "baseline" : {
+      "precisionAt5" : 0.02,
+      "recallAt5" : 0.08,
+      "mrrAt5" : 0.08,
+      "ndcgAt5" : 0.08,
+      "zeroResultRatePercent" : 92.5,
+      "averageLatencyMs" : 4.59
+    },
+    "current" : {
+      "precisionAt5" : 0.15,
+      "recallAt5" : 0.63,
+      "mrrAt5" : 0.65,
+      "ndcgAt5" : 0.63,
+      "zeroResultRatePercent" : 35.0,
+      "averageLatencyMs" : 2.57
+    },
+    "relativeNdcgLiftPercent" : 740.88,
+    "absoluteNdcgPointLift" : 55.57,
+    "failedQueries" : [ {
+      "expected" : [ 3 ],
+      "query" : "MacBook Air M4",
+      "actual" : [ ]
+    }, {
+      "expected" : [ 15 ],
+      "query" : "干燥 混合",
+      "actual" : [ ]
+    }, {
+      "expected" : [ 3 ],
+      "query" : "轻薄办公",
+      "actual" : [ ]
+    }, {
+      "expected" : [ 4 ],
+      "query" : "旅行短视频",
+      "actual" : [ ]
+    }, {
+      "expected" : [ 5 ],
+      "query" : "网课记笔记",
+      "actual" : [ ]
+    }, {
+      "expected" : [ 7 ],
+      "query" : "设计办公",
+      "actual" : [ ]
+    }, {
+      "expected" : [ 8 ],
+      "query" : "办公室不会打扰",
+      "actual" : [ ]
+    }, {
+      "expected" : [ 10 ],
+      "query" : "三分钟咖啡",
+      "actual" : [ ]
+    }, {
+      "expected" : [ 11, 20 ],
+      "query" : "卧室静音净化",
+      "actual" : [ ]
+    }, {
+      "expected" : [ 13 ],
+      "query" : "15.6英寸电脑仓",
+      "actual" : [ ]
+    }, {
+      "expected" : [ 14 ],
+      "query" : "5-10公里慢跑",
+      "actual" : [ ]
+    }, {
+      "expected" : [ 15 ],
+      "query" : "温和保湿",
+      "actual" : [ ]
+    }, {
+      "expected" : [ 16 ],
+      "query" : "设计剪辑开发",
+      "actual" : [ ]
+    }, {
+      "expected" : [ 16 ],
+      "query" : "高性能创作",
+      "actual" : [ ]
+    } ]
+  },
+  "authentication" : {
+    "accessMatrixPassed" : 6,
+    "accessMatrixTotal" : 6,
+    "concurrentRequests" : 2000,
+    "identityLeaks" : 0,
+    "requestErrors" : 0
+  },
+  "ragRetrieval" : {
+    "sampleSize" : 40,
+    "embeddingMode" : "LOCAL_FALLBACK:256",
+    "vectorOnly" : {
+      "precisionAt5" : 0.18,
+      "recallAt5" : 0.88,
+      "mrrAt5" : 0.76,
+      "ndcgAt5" : 0.79,
+      "zeroResultRatePercent" : 0.0
+    },
+    "hybrid" : {
+      "precisionAt5" : 0.19,
+      "recallAt5" : 0.95,
+      "mrrAt5" : 0.83,
+      "ndcgAt5" : 0.86,
+      "zeroResultRatePercent" : 0.0
+    },
+    "relativeNdcgLiftPercent" : 9.36,
+    "failedQueries" : [ {
+      "expectedProductId" : 2,
+      "query" : "降噪耳机续航和降噪深度是多少",
+      "actual" : [ 18, 12, 14, 19, 15 ]
+    }, {
+      "expectedProductId" : 3,
+      "query" : "轻薄本适不适合移动办公",
+      "actual" : [ 8, 12, 19, 14, 15 ]
+    } ]
+  },
+  "functionTools" : {
+    "configuredTools" : 7,
+    "toolNames" : [ "searchProducts", "getProductDetail", "getUserProfile", "getSimilarProducts", "getOrderStatus", "getAfterSaleRule", "submitRecommendation" ],
+    "validJsonSchemas" : 7,
+    "productFactsMatchDatabase" : true,
+    "userProfileSource" : "HARDCODED_DEMO",
+    "userProfileSample" : {
+      "preferences" : [ "数码产品", "高性价比" ],
+      "orderCount" : 0,
+      "userId" : 2
+    }
+  },
+  "onlineAi" : {
+    "chatScenarios" : 18,
+    "chatSuccess" : 18,
+    "groundedAnswers" : 18,
+    "chatLatencyMs" : {
+      "count" : 18,
+      "average" : 1039.67,
+      "p95" : 1593,
+      "median" : 1206
+    },
+    "chatFailures" : [ ],
+    "agentScenarios" : 10,
+    "agentSuccess" : 10,
+    "runsWithRecommendations" : 9,
+    "auditCompleteRuns" : 9,
+    "averageRecordedToolCalls" : 10.5,
+    "agentLatencyMs" : {
+      "count" : 10,
+      "average" : 11964.6,
+      "p95" : 17073,
+      "median" : 12219
+    },
+    "factualClaims" : 26,
+    "factualErrors" : 0,
+    "falseFactRatePercent" : 0.0,
+    "agentFailures" : [ ],
+    "maximumPossibleModelCalls" : 98
+  },
+  "generatedAt" : "2026-08-21T17:20:56.584571600+08:00",
+  "database" : "ai_mall_benchmark"
+}
