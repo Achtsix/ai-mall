@@ -1,6 +1,19 @@
 @echo off
 chcp 65001 >nul
 cd /d %~dp0
+if exist local-env.bat call local-env.bat
+if not defined MYSQL_PASSWORD (
+  echo [ERROR] MYSQL_PASSWORD is not configured.
+  echo Copy local-env.example.bat to local-env.bat and fill in local-only credentials.
+  pause
+  exit /b 1
+)
+if not defined JWT_SECRET (
+  echo [ERROR] JWT_SECRET is not configured.
+  echo Configure at least 32 random characters in local-env.bat.
+  pause
+  exit /b 1
+)
 echo ============================================================
 echo  AI Mall Backend Startup
 echo  First run will auto-download Maven (please wait)

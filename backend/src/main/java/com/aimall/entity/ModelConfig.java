@@ -1,6 +1,7 @@
 package com.aimall.entity;
 
 import lombok.Data;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -11,6 +12,7 @@ public class ModelConfig {
     private String name;
     private String provider;
     private String baseUrl;
+    @JsonIgnore
     private String apiKey;
     private String model;
     private BigDecimal temperature;

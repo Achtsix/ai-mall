@@ -60,12 +60,9 @@ backend/src/main/resources/sql/init.sql
 
 首次初始化会同时导入 `backend/src/main/resources/sql/catalog-expansion.sql`，包含扩充后的商品、分类、品牌、用户评价和商品知识库资料。商品图片为下载到 `backend/uploads/products/` 的真实公开商品摄影资源（来源 Unsplash），通过 `/uploads/products/...` 提供访问。
 
-### 2. 修改配置
+### 2. 配置本机密钥
 
-编辑 `backend/src/main/resources/application.yml`：
-
-- MySQL 用户名和密码
-- `DEEPSEEK_API_KEY`（或环境变量 `DEEPSEEK_API_KEY`）
+复制 `backend/local-env.example.bat` 为 `backend/local-env.bat`，填写本机 MySQL 密码、随机 JWT 密钥和 AI API Key。`local-env.bat` 已被 Git 忽略，密钥不会提交到仓库或写入数据库。
 
 如需接入 OpenAI 兼容接口（默认模型名为 `gpt-5.6`），启动前设置：
 
@@ -76,6 +73,14 @@ set OPENAI_MODEL=gpt-5.6
 ```
 
 也可以使用你所在服务商提供的 OpenAI 兼容 Base URL；API Key 只放在后端环境变量中，不要放入前端。
+
+### 作品展示安全基线
+
+- 数据库默认只连接 `127.0.0.1:3306`，不要在路由器或云防火墙中开放 MySQL 端口。
+- 初始化账号、钱包、地址、评价和订单均为虚构测试数据，请勿导入真实个人信息。
+- AI 对话与导购默认每个账号每分钟最多 12 次，可通过 `AI_REQUESTS_PER_MINUTE` 调整。
+- Function Tool 调试接口和知识库重建接口仅管理员可访问。
+- 模型 API Key 仅从 `OPENAI_API_KEY` 或 `DEEPSEEK_API_KEY` 读取，旧版本存入数据库的 Key 会在启动时自动清除。
 
 ### 3. Windows 一键启动（无需安装 Maven）
 

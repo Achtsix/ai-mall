@@ -51,6 +51,7 @@
         </el-tab-pane>
 
         <el-tab-pane label="模型与 Prompt" name="model">
+          <el-alert class="secret-notice" title="API Key 仅从后端环境变量读取，页面输入不会被保存到数据库。" type="info" show-icon :closable="false" />
           <el-row :gutter="16"><el-col :xs="24" :lg="12"><section class="section-panel"><div class="section-title"><span>模型配置</span><el-button size="small" type="primary" @click="openModel()">新增</el-button></div><el-table :data="models" size="small"><el-table-column prop="name" label="名称" /><el-table-column prop="provider" label="提供商" /><el-table-column prop="model" label="模型" /><el-table-column prop="enabled" label="启用" width="80"><template #default="{ row }"><el-switch v-model="row.enabled" :active-value="1" :inactive-value="0" @change="saveModel(row)" /></template></el-table-column><el-table-column label="操作" width="70"><template #default="{ row }"><el-button link type="primary" @click="openModel(row)">编辑</el-button></template></el-table-column></el-table></section></el-col><el-col :xs="24" :lg="12"><section class="section-panel"><div class="section-title"><span>Prompt 模板</span><el-button size="small" type="primary" @click="openPrompt()">新增</el-button></div><el-table :data="prompts" size="small"><el-table-column prop="name" label="名称" /><el-table-column prop="type" label="类型" width="110" /><el-table-column prop="enabled" label="启用" width="80"><template #default="{ row }"><el-switch v-model="row.enabled" :active-value="1" :inactive-value="0" @change="savePrompt(row)" /></template></el-table-column><el-table-column label="操作" width="70"><template #default="{ row }"><el-button link type="primary" @click="openPrompt(row)">编辑</el-button></template></el-table-column></el-table></section></el-col></el-row>
         </el-tab-pane>
 
@@ -115,4 +116,5 @@ onMounted(loadAll)
 .section-title { font-weight: 600; margin-bottom: 12px; }
 .sub-heading { font-weight: 600; margin: 24px 0 12px; padding-left: 10px; border-left: 3px solid #409eff; }
 .toolbar { margin-bottom: 12px; }
+.secret-notice { margin-bottom: 16px; }
 </style>

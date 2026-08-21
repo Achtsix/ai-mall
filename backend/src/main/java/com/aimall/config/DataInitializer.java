@@ -5,6 +5,7 @@ import com.aimall.entity.User;
 import com.aimall.entity.Wallet;
 import com.aimall.mapper.UserMapper;
 import com.aimall.mapper.WalletMapper;
+import com.aimall.mapper.ModelConfigMapper;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
@@ -18,14 +19,18 @@ public class DataInitializer implements CommandLineRunner {
 
     private final UserMapper userMapper;
     private final WalletMapper walletMapper;
+    private final ModelConfigMapper modelConfigMapper;
 
-    public DataInitializer(UserMapper userMapper, WalletMapper walletMapper) {
+    public DataInitializer(UserMapper userMapper, WalletMapper walletMapper, ModelConfigMapper modelConfigMapper) {
         this.userMapper = userMapper;
         this.walletMapper = walletMapper;
+        this.modelConfigMapper = modelConfigMapper;
     }
 
     @Override
     public void run(String... args) {
+        // API keys are environment-only; remove values saved by older project versions.
+        modelConfigMapper.clearStoredApiKeys();
         initUser("admin", "系统管理员", "ADMIN");
         initUser("user", "测试用户", "USER");
     }

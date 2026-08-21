@@ -41,7 +41,11 @@ public class JwtInterceptor implements HandlerInterceptor {
         user.setUserId(((Number) jwt.getPayload("userId")).longValue());
         user.setUsername((String) jwt.getPayload("username"));
         user.setRole((String) jwt.getPayload("role"));
-        if (request.getRequestURI().startsWith("/api/admin") && !"ADMIN".equals(user.getRole())) {
+        String requestUri = request.getRequestURI();
+        boolean adminOnly = requestUri.startsWith("/api/admin")
+                || requestUri.startsWith("/api/ai/tools")
+                || requestUri.startsWith("/api/ai/knowledge");
+        if (adminOnly && !"ADMIN".equals(user.getRole())) {
             response.setStatus(403);
             response.setContentType("application/json;charset=UTF-8");
             response.getWriter().write("{\"code\":403,\"message\":\"无管理员权限\"}");

@@ -5,6 +5,8 @@ import com.aimall.ai.AiChatService;
 import com.aimall.ai.AgentEngine;
 import com.aimall.ai.RagService;
 import com.aimall.ai.ToolExecutors;
+import com.aimall.ai.AiRateLimiter;
+import com.aimall.common.BusinessException;
 import com.aimall.common.Result;
 import com.aimall.common.UserContext;
 import com.aimall.entity.AgentRun;
@@ -32,6 +34,7 @@ public class AiController {
     private final AgentStepMapper agentStepMapper;
     private final GuideTaskMapper guideTaskMapper;
     private final RecommendResultMapper recommendResultMapper;
+    private final AiRateLimiter aiRateLimiter;
 
     public AiController(AiChatService aiChatService,
                         AgentEngine agentEngine,
@@ -40,7 +43,8 @@ public class AiController {
                         AgentRunMapper agentRunMapper,
                         AgentStepMapper agentStepMapper,
                         GuideTaskMapper guideTaskMapper,
-                        RecommendResultMapper recommendResultMapper) {
+                        RecommendResultMapper recommendResultMapper,
+                        AiRateLimiter aiRateLimiter) {
         this.aiChatService = aiChatService;
         this.agentEngine = agentEngine;
         this.ragService = ragService;
@@ -49,10 +53,12 @@ public class AiController {
         this.agentStepMapper = agentStepMapper;
         this.guideTaskMapper = guideTaskMapper;
         this.recommendResultMapper = recommendResultMapper;
+        this.aiRateLimiter = aiRateLimiter;
     }
 
     @PostMapping("/chat")
     public Result<Map<String, Object>> chat(@RequestBody Map<String, Object> req) {
+        aiRateLimiter.check(UserContext.getUserId());
         String question = req.get("question") == null ? "" : String.valueOf(req.get("question"));
         String questionType = req.get("questionType") == null ? "PRODUCT_QA" : String.valueOf(req.get("questionType"));
         Long productId = req.get("productId") == null ? null : Long.valueOf(req.get("productId").toString());
@@ -66,6 +72,7 @@ public class AiController {
     @PostMapping("/guide")
     public Result<Map<String, Object>> guide(@RequestBody Map<String, Object> req) {
         Long userId = UserContext.getUserId();
+        aiRateLimiter.check(userId);
         GuideTask task = new GuideTask();
         task.setUserId(userId);
         task.setQuestion(req.get("question") == null ? "" : String.valueOf(req.get("question")));
@@ -90,6 +97,10 @@ public class AiController {
 
     @GetMapping("/guide/{taskId}/recommendations")
     public Result<List<RecommendResult>> recommendations(@PathVariable Long taskId) {
+        GuideTask task = guideTaskMapper.findById(taskId);
+        if (task == null || !UserContext.getUserId().equals(task.getUserId())) {
+            throw new BusinessException(404, "导购任务不存在");
+        }
         return Result.ok(recommendResultMapper.findByTaskId(taskId));
     }
 
@@ -103,9 +114,10 @@ public class AiController {
     @GetMapping("/agent/runs/{id}")
     public Result<AgentRun> agentRunDetail(@PathVariable Long id) {
         AgentRun run = agentRunMapper.findById(id);
-        if (run != null) {
-            run.setSteps(agentStepMapper.findByRunId(id));
+        if (run == null || !UserContext.getUserId().equals(run.getUserId())) {
+            throw new BusinessException(404, "Agent 运行记录不存在");
         }
+        run.setSteps(agentStepMapper.findByRunId(id));
         return Result.ok(run);
     }
 

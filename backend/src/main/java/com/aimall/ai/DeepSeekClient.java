@@ -17,7 +17,7 @@ import java.util.Map;
 
 /**
  * DeepSeek OpenAI 兼容客户端。
- * 如果配置了 model_config 表则优先使用，否则使用 application.yml 中的 spring.ai.openai 配置。
+ * Model metadata may come from model_config, but credentials are environment-only.
  */
 @Service
 public class DeepSeekClient {
@@ -79,20 +79,14 @@ public class DeepSeekClient {
             model = openAiModel;
             temp = temperature != null ? temperature : openAiTemperature;
             maxTokens = openAiMaxTokens;
-        } else if (config != null && isConfigured(config.getApiKey())) {
-            baseUrl = firstNonBlank(config.getBaseUrl(), defaultBaseUrl);
-            apiKey = config.getApiKey();
-            model = firstNonBlank(config.getModel(), "deepseek-chat");
-            temp = temperature != null ? temperature : (config.getTemperature() == null ? 0.7 : config.getTemperature().doubleValue());
-            maxTokens = config.getMaxTokens() == null ? 4096 : config.getMaxTokens();
         } else if (isConfigured(defaultApiKey)) {
-            baseUrl = defaultBaseUrl;
+            baseUrl = config == null ? defaultBaseUrl : firstNonBlank(config.getBaseUrl(), defaultBaseUrl);
             apiKey = defaultApiKey;
-            model = "deepseek-chat";
-            temp = temperature == null ? 0.7 : temperature;
-            maxTokens = 4096;
+            model = config == null ? "deepseek-chat" : firstNonBlank(config.getModel(), "deepseek-chat");
+            temp = temperature != null ? temperature : (config == null || config.getTemperature() == null ? 0.7 : config.getTemperature().doubleValue());
+            maxTokens = config == null || config.getMaxTokens() == null ? 4096 : config.getMaxTokens();
         } else {
-            throw new BusinessException(503, "未配置 AI API Key，请设置 OPENAI_API_KEY（模型默认为 gpt-5.6）");
+            throw new BusinessException(503, "未配置 AI API Key，请设置 OPENAI_API_KEY 或 DEEPSEEK_API_KEY");
         }
 
         Map<String, Object> body = new java.util.HashMap<>();
@@ -211,14 +205,13 @@ public class DeepSeekClient {
     public String getActiveModel() {
         if (isConfigured(openAiApiKey)) return openAiModel;
         ModelConfig config = modelConfigMapper.findEnabled();
-        if (config != null && isConfigured(config.getApiKey())) return firstNonBlank(config.getModel(), "deepseek-chat");
+        if (isConfigured(defaultApiKey)) return config == null ? "deepseek-chat" : firstNonBlank(config.getModel(), "deepseek-chat");
         return "deepseek-chat";
     }
 
     public boolean isConfigured() {
         if (isConfigured(openAiApiKey)) return true;
-        ModelConfig config = modelConfigMapper.findEnabled();
-        return (config != null && isConfigured(config.getApiKey())) || isConfigured(defaultApiKey);
+        return isConfigured(defaultApiKey);
     }
 
     private static boolean isConfigured(String value) {

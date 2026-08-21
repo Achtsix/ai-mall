@@ -117,8 +117,13 @@ public class AdminService {
         if (t.getId() == null) promptTemplateMapper.insert(t); else promptTemplateMapper.update(t);
         return t;
     }
-    public List<ModelConfig> listModelConfigs() { return modelConfigMapper.findAll(); }
+    public List<ModelConfig> listModelConfigs() {
+        List<ModelConfig> configs = modelConfigMapper.findAll();
+        configs.forEach(config -> config.setApiKey(null));
+        return configs;
+    }
     public ModelConfig saveModelConfig(ModelConfig c) {
+        c.setApiKey(null);
         if (c.getId() == null) modelConfigMapper.insert(c); else modelConfigMapper.update(c);
         return c;
     }

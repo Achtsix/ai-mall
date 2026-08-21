@@ -8,9 +8,10 @@ spring:
     name: ai-mall-backend
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/ai_mall?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true&createDatabaseIfNotExist=true
-    username: root
-    password: 123456
+    # Keep MySQL on localhost for the portfolio demo; credentials must stay outside Git.
+    url: ${MYSQL_URL:jdbc:mysql://127.0.0.1:3306/ai_mall?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true}
+    username: ${MYSQL_USERNAME:root}
+    password: ${MYSQL_PASSWORD}
   servlet:
     multipart:
       max-file-size: 20MB
@@ -18,7 +19,7 @@ spring:
   ai:
     openai:
       base-url: https://api.deepseek.com
-      api-key: ${DEEPSEEK_API_KEY:sk-your-deepseek-key}
+      api-key: ${DEEPSEEK_API_KEY:}
       chat:
         options:
           model: deepseek-chat
@@ -52,8 +53,7 @@ aimall:
       api-key: ${EMBEDDING_API_KEY:${OPENAI_API_KEY:}}
       model: ${EMBEDDING_MODEL:text-embedding-3-small}
   jwt:
-    # 生产环境请修改为足够长的随机字符串
-    secret: aimall-jwt-secret-key-please-change-in-production-2025
+    secret: ${JWT_SECRET}
     expire-hours: 72
   upload:
     dir: ./uploads
@@ -62,6 +62,7 @@ aimall:
     max-steps: 8
     embedding-model: text-embedding-v1
     top-k: 5
+    requests-per-minute: ${AI_REQUESTS_PER_MINUTE:12}
 
 logging:
   level:

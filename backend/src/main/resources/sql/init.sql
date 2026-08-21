@@ -355,7 +355,8 @@ CREATE TABLE high_freq_question (
 -- ============================================================
 -- 初始化数据
 -- ============================================================
--- 默认管理员 / 普通用户，密码均为 123456（Hutool BCrypt 后填写，实际启动时可用代码初始化）
+-- 以下账号、钱包、评价和订单均为作品展示使用的虚构测试数据，不包含真实个人信息。
+-- 默认管理员 / 普通用户，密码均为 123456（仅用于本机演示，请勿用于真实业务）。
 INSERT INTO sys_user (id, username, password, nickname, role) VALUES
 (1, 'admin', '$2a$10$7JB720yubVSZvUI0rEqK/.VqGOZTH.ulu33dHOiBE8ByOhJIrdAu2', '系统管理员', 'ADMIN'),
 (2, 'user', '$2a$10$7JB720yubVSZvUI0rEqK/.VqGOZTH.ulu33dHOiBE8ByOhJIrdAu2', '测试用户', 'USER');
@@ -411,4 +412,4 @@ INSERT INTO prompt_template (name, type, content, enabled) VALUES
 ('运营报告提示词', 'OPERATION_REPORT', '你是一位增长运营专家，请结合评价分析、高频咨询、导购转化数据生成可执行的运营增长报告。', 1);
 
 INSERT INTO model_config (name, provider, base_url, api_key, model, temperature, max_tokens, enabled) VALUES
-('默认 DeepSeek', 'DEEPSEEK', 'https://api.deepseek.com', '${DEEPSEEK_API_KEY}', 'deepseek-chat', 0.70, 4096, 1);
+('默认 DeepSeek', 'DEEPSEEK', 'https://api.deepseek.com', NULL, 'deepseek-chat', 0.70, 4096, 1);
