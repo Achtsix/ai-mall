@@ -1,4 +1,4 @@
-# AI 智能导购商城（Spring Boot 3 + Vue 3 + DeepSeek Agent）
+# AI 智能导购商城（Spring Boot 3 + Vue 3 + Agent + RAG + Function Calling + Embedding）
 
 > 在传统商城之上叠加 AI 导购 Agent：RAG 商品知识库 + Function Calling 工具中心 + Agent Run/Step 自主决策 + 多轮导购对话 + AI 评价分析与运营增长报告。
 
