@@ -28,6 +28,15 @@ public class VectorStore {
     }
 
     public List<KnowledgeChunk> search(String query, int topK, Set<Long> allowedDocIds) {
+        return search(query, topK, allowedDocIds, 0.78, 0.22, 0.08);
+    }
+
+    List<KnowledgeChunk> searchVectorOnly(String query, int topK, Set<Long> allowedDocIds) {
+        return search(query, topK, allowedDocIds, 1.0, 0.0, 0.0);
+    }
+
+    private List<KnowledgeChunk> search(String query, int topK, Set<Long> allowedDocIds,
+                                        double vectorWeight, double lexicalWeight, double lexicalRerankBonus) {
         double[] queryVec = deepSeekClient.embed(query);
         List<KnowledgeChunk> chunks = knowledgeChunkMapper.findAllChunks();
         String normalizedQuery = normalize(query);
@@ -38,13 +47,13 @@ public class VectorStore {
                     double vectorScore = cosine(queryVec, parseVector(chunk.getEmbeddingJson()));
                     double lexicalScore = lexical(queryTokens, chunk.getContent());
                     // Hybrid retrieval improves exact product/specification matches while preserving semantic recall.
-                    double score = vectorScore * 0.78 + lexicalScore * 0.22;
+                    double score = vectorScore * vectorWeight + lexicalScore * lexicalWeight;
                     chunk.setEmbeddingJson(null);
                     return new ScoredChunk(chunk, score, vectorScore, lexicalScore);
                 })
                 .sorted(Comparator.comparingDouble(ScoredChunk::score).reversed())
                 .limit(Math.max(topK * 3, topK))
-                .sorted(Comparator.comparingDouble(ScoredChunk::rerankScore).reversed())
+                .sorted(Comparator.comparingDouble((ScoredChunk item) -> item.rerankScore(lexicalRerankBonus)).reversed())
                 .limit(topK)
                 .map(ScoredChunk::chunk)
                 .toList();
@@ -99,6 +108,6 @@ public class VectorStore {
     }
 
     private record ScoredChunk(KnowledgeChunk chunk, double score, double vectorScore, double lexicalScore) {
-        double rerankScore() { return score + lexicalScore * 0.08; }
+        double rerankScore(double lexicalRerankBonus) { return score + lexicalScore * lexicalRerankBonus; }
     }
 }

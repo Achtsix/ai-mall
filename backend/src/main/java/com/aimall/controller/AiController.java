@@ -133,6 +133,7 @@ public class AiController {
         config.put("model", agentEngine.getActiveModel());
         config.put("provider", "OPENAI_COMPATIBLE");
         config.put("configured", agentEngine.isConfigured());
+        config.put("embeddingMode", agentEngine.getEmbeddingMode());
         return Result.ok(config);
     }
 

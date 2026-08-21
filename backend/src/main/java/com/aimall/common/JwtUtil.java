@@ -33,7 +33,18 @@ public class JwtUtil {
 
     public boolean verify(String token) {
         try {
-            return JWTUtil.verify(token, secret.getBytes(StandardCharsets.UTF_8));
+            if (!JWTUtil.verify(token, secret.getBytes(StandardCharsets.UTF_8))) return false;
+            Object expiresAt = JWTUtil.parseToken(token).getPayload("exp");
+            long expiresAtMillis;
+            if (expiresAt instanceof Number number) {
+                long value = number.longValue();
+                expiresAtMillis = value < 10_000_000_000L ? value * 1000 : value;
+            } else if (expiresAt instanceof Date date) {
+                expiresAtMillis = date.getTime();
+            } else {
+                return false;
+            }
+            return expiresAtMillis > System.currentTimeMillis();
         } catch (Exception e) {
             return false;
         }

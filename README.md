@@ -2,6 +2,20 @@
 
 > 在传统商城之上叠加 AI 导购 Agent：RAG 商品知识库 + Function Calling 工具中心 + Agent Run/Step 自主决策 + 多轮导购对话 + AI 评价分析与运营增长报告。
 
+## 已验证指标
+
+项目包含可重复运行的独立基准测试，测试库固定为 `ai_mall_benchmark`，不会清理或改写展示库 `ai_mall`。2026-08-21 的固定数据集结果如下：
+
+- 27 张业务表、10 个用户端路由、20 个基准商品、20 份知识文档；
+- 商品接口支持关键词、分类、品牌、最低价、最高价 5 类查询条件；40 条搜索用例的 nDCG@5 为 0.63；
+- 混合 RAG 在 40 条检索用例上的 nDCG@5 为 0.86，相比纯向量的 0.79 提升 9.36%；
+- JWT 访问矩阵 6/6 通过，2000 次并发交错身份请求中串号和请求错误均为 0；
+- 7 个 Function Tool 均具有合法 JSON Schema；26 项价格/库存事实核对错误为 0；
+- 18/18 个在线问答场景成功，10/10 个 Agent 场景完成；Agent 延迟中位数 12.219 秒、P95 17.073 秒；
+- Playwright 覆盖用户购物与余额支付、管理员入口和移动端导航，3/3 条端到端流程通过。
+
+详细口径、失败案例和运行方式见 [量化测试报告](docs/benchmark-report.md)，可用于简历的事实版描述见 [项目介绍与个人优势](docs/resume-project-description.md)。原始结果保存在 `docs/benchmark-results.json`。
+
 ## 技术栈
 
 - 后端：Java 21、Spring Boot 3、Spring AI、MyBatis、PageHelper、Hutool、JWT、MySQL
@@ -113,3 +127,42 @@ npm run dev
 ```
 
 默认前端地址：`http://localhost:5173`，后端：`http://localhost:8080`
+
+## 运行测试
+
+常规后端测试：
+
+```bat
+cd backend
+mvnw.cmd test
+```
+
+离线基准测试需先配置本机测试数据库账号，再设置 `RUN_BENCHMARK=true`。只有显式设置 `RUN_AI_BENCHMARK=true` 才会执行受节流保护的在线 AI 场景：
+
+```bat
+cd backend
+set RUN_BENCHMARK=true
+mvnw.cmd test -Dtest=BenchmarkIntegrationTest
+```
+
+前端测试使用独立基准后端（默认 `18080`）和前端（默认 `5174`）。先在两个终端分别启动服务：
+
+```bat
+backend\scripts\run-benchmark-server.bat
+```
+
+```bat
+cd frontend
+set VITE_API_TARGET=http://127.0.0.1:18080
+npm run dev -- --port 5174
+```
+
+再在第三个终端执行：
+
+```bat
+cd frontend
+npm run build
+npm run test:e2e
+```
+
+其中基准后端脚本会先重建 `ai_mall_benchmark` 并执行离线基准，不会启用在线 AI 测试，也不会操作 `ai_mall`。

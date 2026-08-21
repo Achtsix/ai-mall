@@ -138,6 +138,10 @@ public class DeepSeekClient {
         return localEmbed(text);
     }
 
+    public String getEmbeddingMode() {
+        return isConfigured(embeddingApiKey) ? "REMOTE:" + embeddingModel : "LOCAL_FALLBACK:256";
+    }
+
     /** Uses an OpenAI-compatible embeddings endpoint when configured. */
     @SuppressWarnings("unchecked")
     private double[] remoteEmbed(String text) {

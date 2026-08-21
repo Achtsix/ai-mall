@@ -61,6 +61,10 @@ public class AgentEngine {
         return deepSeekClient.isConfigured();
     }
 
+    public String getEmbeddingMode() {
+        return deepSeekClient.getEmbeddingMode();
+    }
+
     @SuppressWarnings("unchecked")
     public AgentRun run(Long userId, String question, Long guideTaskId, List<Map<String, Object>> history) {
         AgentRun run = new AgentRun();
