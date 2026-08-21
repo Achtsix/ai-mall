@@ -48,6 +48,15 @@ public class DeepSeekClient {
     @Value("${aimall.ai.openai.max-tokens:4096}")
     private int openAiMaxTokens;
 
+    @Value("${aimall.ai.embedding.base-url:${aimall.ai.openai.base-url:https://api.openai.com/v1}}")
+    private String embeddingBaseUrl;
+
+    @Value("${aimall.ai.embedding.api-key:${aimall.ai.openai.api-key:}}")
+    private String embeddingApiKey;
+
+    @Value("${aimall.ai.embedding.model:text-embedding-3-small}")
+    private String embeddingModel;
+
     public DeepSeekClient(ModelConfigMapper modelConfigMapper) {
         this.modelConfigMapper = modelConfigMapper;
         this.restClient = RestClient.create();
@@ -129,15 +138,47 @@ public class DeepSeekClient {
         return resp;
     }
 
-    /**
-     * 本地简易 Embedding：将文本转为 256 维词袋向量，便于演示 RAG 检索。
-     * 生产环境可替换为 DeepSeek/第三方 Embedding 接口。
-     */
     public double[] embed(String text) {
+        double[] remote = remoteEmbed(text);
+        if (remote != null) return remote;
+        return localEmbed(text);
+    }
+
+    /** Uses an OpenAI-compatible embeddings endpoint when configured. */
+    @SuppressWarnings("unchecked")
+    private double[] remoteEmbed(String text) {
+        if (!isConfigured(embeddingApiKey) || text == null || text.isBlank()) return null;
+        try {
+            Map<String, Object> body = new java.util.HashMap<>();
+            body.put("model", embeddingModel);
+            body.put("input", text);
+            String url = embeddingBaseUrl.endsWith("/") ? embeddingBaseUrl + "embeddings" : embeddingBaseUrl + "/embeddings";
+            Map<String, Object> response = restClient.post().uri(url)
+                    .header("Authorization", "Bearer " + embeddingApiKey)
+                    .contentType(MediaType.APPLICATION_JSON).body(body).retrieve().body(Map.class);
+            List<Map<String, Object>> data = (List<Map<String, Object>>) response.get("data");
+            if (data == null || data.isEmpty()) return null;
+            List<Number> values = (List<Number>) data.get(0).get("embedding");
+            if (values == null || values.isEmpty()) return null;
+            double[] vector = new double[values.size()];
+            for (int i = 0; i < values.size(); i++) vector[i] = values.get(i).doubleValue();
+            return vector;
+        } catch (Exception e) {
+            log.warn("Embedding API unavailable, using local fallback: {}", e.getMessage());
+            return null;
+        }
+    }
+
+    /** Deterministic fallback for offline development and providers without embeddings. */
+    private double[] localEmbed(String text) {
         double[] vector = new double[256];
         if (text == null || text.isBlank()) return vector;
         String normalized = text.toLowerCase().replaceAll("[^a-z0-9\\u4e00-\\u9fa5]", " ");
-        String[] tokens = normalized.split("\\s+");
+        java.util.List<String> tokens = new java.util.ArrayList<>(java.util.Arrays.asList(normalized.split("\\s+")));
+        for (int i = 0; i + 1 < normalized.length(); i++) {
+            char a = normalized.charAt(i), b = normalized.charAt(i + 1);
+            if (a >= '\u4e00' && a <= '\u9fa5' && b >= '\u4e00' && b <= '\u9fa5') tokens.add("" + a + b);
+        }
         for (String token : tokens) {
             if (token.isBlank()) continue;
             int hash = token.hashCode();

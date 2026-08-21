@@ -24,7 +24,6 @@ spring:
           model: deepseek-chat
           temperature: 0.7
           max-tokens: 4096
-
 mybatis:
   mapper-locations: classpath:mapper/*.xml
   type-aliases-package: com.aimall.entity
@@ -47,6 +46,11 @@ aimall:
       model: ${OPENAI_MODEL:gpt-5.6}
       temperature: ${OPENAI_TEMPERATURE:0.3}
       max-tokens: ${OPENAI_MAX_TOKENS:4096}
+    embedding:
+      # OpenAI-compatible embeddings endpoint; empty key keeps offline fallback enabled.
+      base-url: ${EMBEDDING_BASE_URL:${OPENAI_BASE_URL:https://api.openai.com/v1}}
+      api-key: ${EMBEDDING_API_KEY:${OPENAI_API_KEY:}}
+      model: ${EMBEDDING_MODEL:text-embedding-3-small}
   jwt:
     # 生产环境请修改为足够长的随机字符串
     secret: aimall-jwt-secret-key-please-change-in-production-2025

@@ -14,7 +14,7 @@ public interface KnowledgeChunkMapper {
     @Select("SELECT * FROM knowledge_chunk WHERE doc_id=#{docId}")
     List<KnowledgeChunk> findByDocId(Long docId);
 
-    @Select("SELECT * FROM knowledge_chunk ORDER BY id DESC LIMIT 500")
+    @Select("SELECT * FROM knowledge_chunk ORDER BY id DESC")
     List<KnowledgeChunk> findAllChunks();
 
     @Insert("INSERT INTO knowledge_chunk(doc_id,content,embedding_json) VALUES(#{docId},#{content},#{embeddingJson})")

@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.ArrayList;
 
 @Service
 public class RagService {
@@ -61,10 +62,7 @@ public class RagService {
             knowledgeChunkMapper.deleteByDocId(doc.getId());
             String content = doc.getContent();
             if (content == null || content.isBlank()) continue;
-            int step = 200;
-            for (int i = 0; i < content.length(); i += step) {
-                int end = Math.min(i + step, content.length());
-                String slice = content.substring(i, end);
+            for (String slice : splitSemantic(content)) {
                 KnowledgeChunk chunk = new KnowledgeChunk();
                 chunk.setDocId(doc.getId());
                 chunk.setContent(slice);
@@ -72,6 +70,43 @@ public class RagService {
                 knowledgeChunkMapper.insert(chunk);
             }
         }
+    }
+
+    /** Split by headings/paragraphs/sentences, retaining a small overlap for follow-up questions. */
+    private List<String> splitSemantic(String content) {
+        String normalized = content.replace("\r\n", "\n").trim();
+        List<String> units = new ArrayList<>();
+        for (String paragraph : normalized.split("\\n\\s*\\n|(?=^#{1,6}\\s)|(?=^问：)|(?=^Q[:：])", -1)) {
+            String part = paragraph.trim();
+            if (part.isBlank()) continue;
+            if (part.length() <= 420) {
+                units.add(part);
+                continue;
+            }
+            for (String sentence : part.split("(?<=[。！？!?；;])\\s*")) {
+                String s = sentence.trim();
+                if (!s.isBlank()) units.add(s);
+            }
+        }
+        List<String> chunks = new ArrayList<>();
+        String previous = "";
+        StringBuilder current = new StringBuilder();
+        for (String unit : units) {
+            if (current.length() > 0 && current.length() + unit.length() + 1 > 420) {
+                chunks.add(current.toString());
+                previous = tail(current.toString(), 60);
+                current.setLength(0);
+                current.append(previous);
+            }
+            if (current.length() > 0) current.append(' ');
+            current.append(unit);
+        }
+        if (current.length() > 0) chunks.add(current.toString());
+        return chunks;
+    }
+
+    private String tail(String value, int length) {
+        return value.substring(Math.max(0, value.length() - length)).trim();
     }
 
     private double[] vectorStoreEmbed(String text) { return deepSeekClient.embed(text); }
