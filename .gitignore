@@ -1,0 +1,46 @@
+# IDE and OS files
+.idea/
+.vscode/
+*.iml
+.DS_Store
+Thumbs.db
+
+# Environment variables and local secrets
+.env
+.env.*
+!.env.example
+**/.env
+**/.env.*
+!**/.env.example
+**/application-local.yml
+**/application-*.local.yml
+**/*secret*
+**/*credentials*
+**/*credential*
+**/*apikey*
+
+# Frontend dependencies and build output
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+frontend/coverage/
+
+# Java/Maven build output
+backend/target/
+backend/.mvn/wrapper/maven-wrapper.jar
+
+# Runtime logs and temporary files
+*.log
+*.tmp
+*.temp
+hs_err_pid*
+
+# Runtime uploads: keep seeded product assets, ignore ad-hoc uploads
+backend/uploads/*
+!backend/uploads/products/
+!backend/uploads/products/**
+
+# Local database and generated data exports
+*.sql.gz
+*.dump
+*.bak
