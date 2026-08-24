@@ -4,27 +4,40 @@ import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.aimall.entity.AfterSaleRule;
 import com.aimall.entity.Order;
+import com.aimall.entity.OrderItem;
 import com.aimall.entity.Product;
 import com.aimall.mapper.AfterSaleRuleMapper;
 import com.aimall.mapper.OrderMapper;
+import com.aimall.mapper.OrderItemMapper;
+import com.aimall.mapper.ProductFavoriteMapper;
 import com.aimall.mapper.ProductMapper;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @Service
 public class ToolExecutors {
 
     private final ProductMapper productMapper;
     private final OrderMapper orderMapper;
+    private final OrderItemMapper orderItemMapper;
+    private final ProductFavoriteMapper productFavoriteMapper;
     private final AfterSaleRuleMapper afterSaleRuleMapper;
 
-    public ToolExecutors(ProductMapper productMapper, OrderMapper orderMapper, AfterSaleRuleMapper afterSaleRuleMapper) {
+    public ToolExecutors(ProductMapper productMapper, OrderMapper orderMapper, OrderItemMapper orderItemMapper,
+                         ProductFavoriteMapper productFavoriteMapper, AfterSaleRuleMapper afterSaleRuleMapper) {
         this.productMapper = productMapper;
         this.orderMapper = orderMapper;
+        this.orderItemMapper = orderItemMapper;
+        this.productFavoriteMapper = productFavoriteMapper;
         this.afterSaleRuleMapper = afterSaleRuleMapper;
     }
 
@@ -74,11 +87,43 @@ public class ToolExecutors {
     public Map<String, Object> getUserProfile(String argsJson) {
         JSONObject args = JSONUtil.parseObj(argsJson);
         Long userId = args.getLong("userId");
+        List<Order> orders = userId == null ? List.of() : orderMapper.findByUserId(userId);
+        List<OrderItem> purchasedItems = userId == null ? List.of() : orderItemMapper.findByUserId(userId);
+        List<com.aimall.entity.ProductFavorite> favorites = userId == null ? List.of() : productFavoriteMapper.findByUserId(userId);
+
+        Map<String, Integer> categoryCounts = new HashMap<>();
+        Map<String, Integer> brandCounts = new HashMap<>();
+        Set<String> purchasedProducts = new LinkedHashSet<>();
+        for (OrderItem item : purchasedItems) {
+            Product product = productMapper.findById(item.getProductId());
+            if (product == null) continue;
+            purchasedProducts.add(product.getName());
+            if (product.getCategoryName() != null) categoryCounts.merge(product.getCategoryName(), quantity(item), Integer::sum);
+            if (product.getBrandName() != null) brandCounts.merge(product.getBrandName(), quantity(item), Integer::sum);
+        }
+        List<String> preferredCategories = topKeys(categoryCounts);
+        List<String> preferredBrands = topKeys(brandCounts);
         Map<String, Object> result = new HashMap<>();
         result.put("userId", userId);
-        result.put("preferences", List.of("数码产品", "高性价比"));
-        result.put("orderCount", 0);
+        result.put("source", "DATABASE_DERIVED");
+        result.put("preferences", preferredCategories);
+        result.put("preferredBrands", preferredBrands);
+        result.put("orderCount", orders.size());
+        result.put("favoriteCount", favorites.size());
+        result.put("purchasedProducts", new ArrayList<>(purchasedProducts).stream().limit(5).toList());
         return result;
+    }
+
+    private int quantity(OrderItem item) {
+        return item.getQuantity() == null || item.getQuantity() < 1 ? 1 : item.getQuantity();
+    }
+
+    private List<String> topKeys(Map<String, Integer> counts) {
+        return counts.entrySet().stream()
+                .sorted(Map.Entry.<String, Integer>comparingByValue(Comparator.reverseOrder()).thenComparing(Map.Entry::getKey))
+                .limit(3)
+                .map(Map.Entry::getKey)
+                .toList();
     }
 
     public Map<String, Object> getSimilarProducts(String argsJson) {

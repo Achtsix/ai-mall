@@ -2,7 +2,7 @@
 
 ## AI 智能导购商城（Spring Boot 3 + Vue 3 + DeepSeek Agent）
 
-GitHub：<https://github.com/Achtsix/git>
+GitHub：<https://github.com/Achtsix/ai-mall>
 
 项目介绍：基于 Spring Boot 3、Vue 3 和 OpenAI 兼容大模型接口开发的电商 AI 导购平台，集成 RAG 商品知识库、Function Calling 工具中心和 ReAct Agent 自主决策。系统包含用户端商品浏览、购物车、余额支付，管理员端商品、订单、知识库管理，以及 AI 商品问答和个性化导购推荐。项目使用独立测试库和固定数据集验证搜索、鉴权、RAG、工具调用、Agent 与前端核心流程。
 
@@ -25,6 +25,6 @@ GitHub：<https://github.com/Achtsix/git>
 ## 使用边界
 
 - 本轮离线检索使用 `LOCAL_FALLBACK:256`，不描述为 DeepSeek Embedding。
-- `getUserProfile` 目前是固定演示偏好，不描述为真实用户画像数据库查询。
+- `getUserProfile` 从用户订单、订单商品和收藏数据派生画像；没有历史行为时返回空画像。
 - 0% 价格/库存事实错误仅对应本轮 26 个已核对断言。
 - 搜索 40 条用例仍有 14 条零命中，后续应增加同义词与语义召回。

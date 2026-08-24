@@ -18,7 +18,7 @@
       "mrrAt5" : 0.08,
       "ndcgAt5" : 0.08,
       "zeroResultRatePercent" : 92.5,
-      "averageLatencyMs" : 4.59
+      "averageLatencyMs" : 13.73
     },
     "current" : {
       "precisionAt5" : 0.15,
@@ -26,66 +26,66 @@
       "mrrAt5" : 0.65,
       "ndcgAt5" : 0.63,
       "zeroResultRatePercent" : 35.0,
-      "averageLatencyMs" : 2.57
+      "averageLatencyMs" : 6.55
     },
     "relativeNdcgLiftPercent" : 740.88,
     "absoluteNdcgPointLift" : 55.57,
     "failedQueries" : [ {
-      "expected" : [ 3 ],
       "query" : "MacBook Air M4",
-      "actual" : [ ]
+      "actual" : [ ],
+      "expected" : [ 3 ]
     }, {
-      "expected" : [ 15 ],
       "query" : "干燥 混合",
-      "actual" : [ ]
+      "actual" : [ ],
+      "expected" : [ 15 ]
     }, {
-      "expected" : [ 3 ],
       "query" : "轻薄办公",
-      "actual" : [ ]
+      "actual" : [ ],
+      "expected" : [ 3 ]
     }, {
-      "expected" : [ 4 ],
       "query" : "旅行短视频",
-      "actual" : [ ]
+      "actual" : [ ],
+      "expected" : [ 4 ]
     }, {
-      "expected" : [ 5 ],
       "query" : "网课记笔记",
-      "actual" : [ ]
+      "actual" : [ ],
+      "expected" : [ 5 ]
     }, {
-      "expected" : [ 7 ],
       "query" : "设计办公",
-      "actual" : [ ]
+      "actual" : [ ],
+      "expected" : [ 7 ]
     }, {
-      "expected" : [ 8 ],
       "query" : "办公室不会打扰",
-      "actual" : [ ]
+      "actual" : [ ],
+      "expected" : [ 8 ]
     }, {
-      "expected" : [ 10 ],
       "query" : "三分钟咖啡",
-      "actual" : [ ]
+      "actual" : [ ],
+      "expected" : [ 10 ]
     }, {
-      "expected" : [ 11, 20 ],
       "query" : "卧室静音净化",
-      "actual" : [ ]
+      "actual" : [ ],
+      "expected" : [ 11, 20 ]
     }, {
-      "expected" : [ 13 ],
       "query" : "15.6英寸电脑仓",
-      "actual" : [ ]
+      "actual" : [ ],
+      "expected" : [ 13 ]
     }, {
-      "expected" : [ 14 ],
       "query" : "5-10公里慢跑",
-      "actual" : [ ]
+      "actual" : [ ],
+      "expected" : [ 14 ]
     }, {
-      "expected" : [ 15 ],
       "query" : "温和保湿",
-      "actual" : [ ]
+      "actual" : [ ],
+      "expected" : [ 15 ]
     }, {
-      "expected" : [ 16 ],
       "query" : "设计剪辑开发",
-      "actual" : [ ]
+      "actual" : [ ],
+      "expected" : [ 16 ]
     }, {
-      "expected" : [ 16 ],
       "query" : "高性能创作",
-      "actual" : [ ]
+      "actual" : [ ],
+      "expected" : [ 16 ]
     } ]
   },
   "authentication" : {
@@ -114,13 +114,13 @@
     },
     "relativeNdcgLiftPercent" : 9.36,
     "failedQueries" : [ {
-      "expectedProductId" : 2,
       "query" : "降噪耳机续航和降噪深度是多少",
-      "actual" : [ 18, 12, 14, 19, 15 ]
+      "actual" : [ 18, 12, 14, 19, 15 ],
+      "expectedProductId" : 2
     }, {
-      "expectedProductId" : 3,
       "query" : "轻薄本适不适合移动办公",
-      "actual" : [ 8, 12, 19, 14, 15 ]
+      "actual" : [ 8, 12, 19, 14, 15 ],
+      "expectedProductId" : 3
     } ]
   },
   "functionTools" : {
@@ -128,41 +128,36 @@
     "toolNames" : [ "searchProducts", "getProductDetail", "getUserProfile", "getSimilarProducts", "getOrderStatus", "getAfterSaleRule", "submitRecommendation" ],
     "validJsonSchemas" : 7,
     "productFactsMatchDatabase" : true,
-    "userProfileSource" : "HARDCODED_DEMO",
+    "userProfileSource" : "DATABASE_DERIVED",
     "userProfileSample" : {
-      "preferences" : [ "数码产品", "高性价比" ],
+      "preferredBrands" : [ ],
+      "purchasedProducts" : [ ],
+      "preferences" : [ ],
       "orderCount" : 0,
-      "userId" : 2
+      "source" : "DATABASE_DERIVED",
+      "userId" : 2,
+      "favoriteCount" : 0
     }
   },
   "onlineAi" : {
     "chatScenarios" : 18,
     "chatSuccess" : 18,
     "groundedAnswers" : 18,
-    "chatLatencyMs" : {
-      "count" : 18,
-      "average" : 1039.67,
-      "p95" : 1593,
-      "median" : 1206
-    },
+    "chatLatencyMs" : { "count" : 18, "average" : 1039.67, "p95" : 1593, "median" : 1206 },
     "chatFailures" : [ ],
     "agentScenarios" : 10,
     "agentSuccess" : 10,
     "runsWithRecommendations" : 9,
     "auditCompleteRuns" : 9,
     "averageRecordedToolCalls" : 10.5,
-    "agentLatencyMs" : {
-      "count" : 10,
-      "average" : 11964.6,
-      "p95" : 17073,
-      "median" : 12219
-    },
+    "agentLatencyMs" : { "count" : 10, "average" : 11964.6, "p95" : 17073, "median" : 12219 },
     "factualClaims" : 26,
     "factualErrors" : 0,
     "falseFactRatePercent" : 0.0,
     "agentFailures" : [ ],
-    "maximumPossibleModelCalls" : 98
+    "maximumPossibleModelCalls" : 98,
+    "source" : "ONLINE_AI_RUN_2026-08-21"
   },
-  "generatedAt" : "2026-08-21T17:20:56.584571600+08:00",
+  "generatedAt" : "2026-08-24T15:57:44.208652800+08:00",
   "database" : "ai_mall_benchmark"
 }

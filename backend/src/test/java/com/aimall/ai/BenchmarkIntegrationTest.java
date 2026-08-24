@@ -264,12 +264,14 @@ class BenchmarkIntegrationTest {
         result.put("toolNames", names);
         result.put("validJsonSchemas", validSchemas);
         result.put("productFactsMatchDatabase", productFactsMatch);
-        result.put("userProfileSource", "HARDCODED_DEMO");
+        result.put("userProfileSource", String.valueOf(userProfile.getOrDefault("source", "UNKNOWN")));
         result.put("userProfileSample", userProfile);
         RESULTS.put("functionTools", result);
         assertEquals(7, definitions.size());
         assertEquals(7, validSchemas);
         assertTrue(productFactsMatch);
+        assertEquals("DATABASE_DERIVED", userProfile.get("source"));
+        assertTrue(userProfile.containsKey("favoriteCount"));
     }
 
     @Test

@@ -81,7 +81,7 @@ nDCG@5 绝对提升 55.57 个百分点。相对值为 740.88%，但名称基线�
 
 启用工具为 `searchProducts`、`getProductDetail`、`getUserProfile`、`getSimilarProducts`、`getOrderStatus`、`getAfterSaleRule`、`submitRecommendation`。7 个工具定义都能归一化为合法对象型 JSON Schema，价格/库存工具结果与数据库逐字段一致。
 
-`getUserProfile` 当前仍返回固定演示偏好，不能宣传为真实画像数据库查询。工具真实性只限定为价格、库存、订单和售后数据。
+`getUserProfile` 现在从用户订单、订单商品和收藏表派生画像，返回订单数量、收藏数量、购买过的商品、偏好品类和偏好品牌；没有历史行为时返回空画像。工具真实性仍只限定为价格、库存、订单、售后和这些数据库派生字段。
 
 | Agent 指标 | 结果 |
 | --- | ---: |
