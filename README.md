@@ -43,7 +43,7 @@ GitHub：<https://github.com/Achtsix/ai-mall>
 - 18/18 个在线问答场景成功，10/10 个 Agent 场景完成；Agent 延迟中位数 12.219 秒、P95 17.073 秒；
 - Playwright 覆盖用户购物与余额支付、管理员入口和移动端导航，3/3 条端到端流程通过。
 
-详细口径、失败案例和运行方式见 [量化测试报告](docs/benchmark-report.md)，可用于简历的事实版描述见 [项目介绍与个人优势](docs/resume-project-description.md)。原始结果保存在 `docs/benchmark-results.json`。
+详细口径、失败案例和运行方式见 [量化测试报告](docs/benchmark-report.md)，原始结果保存在 `docs/benchmark-results.json`。
 
 ## 技术栈
 
