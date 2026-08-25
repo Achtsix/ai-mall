@@ -29,7 +29,7 @@ GitHub：<https://github.com/Achtsix/ai-mall>
 | Agent Run/Step | 记录工具、参数、返回、状态和耗时 | 可审计、可复盘 |
 | Snapshot 校验 | 二次读取价格、库存并落库 | 防止推荐快照被模型污染 |
 
-演示脚本、测试账号和录屏分镜见 [docs/demo.md](docs/demo.md)。量化口径见 [docs/benchmark-report.md](docs/benchmark-report.md)。
+演示脚本、测试账号和录屏分镜见 [docs/demo.md](docs/demo.md)。交接给其他开发或测试 Agent 时，先阅读 [docs/agent-handoff.md](docs/agent-handoff.md)。量化口径见 [docs/benchmark-report.md](docs/benchmark-report.md)。
 
 ## 已验证指标
 
