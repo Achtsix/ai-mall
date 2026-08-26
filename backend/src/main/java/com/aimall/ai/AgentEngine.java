@@ -4,6 +4,8 @@ import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.aimall.entity.*;
 import com.aimall.mapper.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -15,6 +17,8 @@ import java.util.Map;
 
 @Service
 public class AgentEngine {
+
+    private static final Logger log = LoggerFactory.getLogger(AgentEngine.class);
 
     private final DeepSeekClient deepSeekClient;
     private final FunctionToolRegistry functionToolRegistry;
@@ -123,6 +127,18 @@ public class AgentEngine {
                 List<Map<String, Object>> toolCalls = deepSeekClient.extractToolCalls(resp);
                 if (toolCalls.isEmpty()) {
                     answer = deepSeekClient.extractContent(resp);
+
+                    // P1-2 修复：记录最终答案为 AgentStep
+                    AgentStep finalStep = new AgentStep();
+                    finalStep.setRunId(run.getId());
+                    finalStep.setSeq(step);
+                    finalStep.setToolName("FINAL_ANSWER");
+                    finalStep.setInputJson("{}");
+                    finalStep.setOutputJson(DeepSeekClient.toJson(Map.of("answer", answer == null ? "" : answer)));
+                    finalStep.setStatus("SUCCESS");
+                    finalStep.setCostMs(0L);
+                    agentStepMapper.insert(finalStep);
+
                     break;
                 }
 
@@ -213,9 +229,32 @@ public class AgentEngine {
             List<Long> productIds = productIdArray == null ? List.of() : productIdArray.toList(Long.class);
             String reason = args.getStr("reason", "");
             if (productIds == null) return;
+
             for (Long productId : productIds) {
                 Product product = productMapper.findById(productId);
-                if (product == null) continue;
+                if (product == null) {
+                    log.warn("推荐的商品不存在: productId={}, runId={}", productId, run.getId());
+                    continue;
+                }
+
+                // P1-1 修复：验证商品状态、库存和价格
+                if (product.getStatus() == null || product.getStatus() != 1) {
+                    log.warn("推荐的商品已下架: productId={}, status={}, runId={}",
+                            productId, product.getStatus(), run.getId());
+                    continue;
+                }
+
+                if (product.getStock() == null || product.getStock() <= 0) {
+                    log.warn("推荐的商品无库存: productId={}, stock={}, runId={}",
+                            productId, product.getStock(), run.getId());
+                    continue;
+                }
+
+                if (product.getPrice() == null) {
+                    log.warn("推荐的商品无价格: productId={}, runId={}", productId, run.getId());
+                    continue;
+                }
+
                 RecommendResult result = new RecommendResult();
                 result.setGuideTaskId(guideTaskId);
                 result.setRunId(run.getId());
@@ -227,8 +266,10 @@ public class AgentEngine {
                 result.setDiscountSnapshot(product.getOriginalPrice() == null ? "" : "原价" + product.getOriginalPrice());
                 recommendResultMapper.insert(result);
             }
-        } catch (Exception ignored) {
-            // 推荐落库失败不影响主流程
+        } catch (Exception e) {
+            // P1-3 修复：记录推荐落库失败的错误，便于排查问题
+            log.error("推荐结果保存失败: runId={}, guideTaskId={}, error={}",
+                    run.getId(), guideTaskId, e.getMessage(), e);
         }
     }
 

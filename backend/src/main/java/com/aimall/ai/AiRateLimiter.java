@@ -2,6 +2,7 @@ package com.aimall.ai;
 
 import com.aimall.common.BusinessException;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayDeque;
@@ -30,5 +31,21 @@ public class AiRateLimiter {
             }
             userRequests.addLast(now);
         }
+    }
+
+    /**
+     * P1-6 修复：定期清理不活跃用户的限流记录，防止内存泄漏
+     * 每小时执行一次，清理超过1小时无请求的用户
+     */
+    @Scheduled(fixedRate = 3600000) // 每小时
+    public void cleanup() {
+        long cutoff = System.currentTimeMillis() - 3600000; // 1小时前
+        requests.entrySet().removeIf(entry -> {
+            Deque<Long> userRequests = entry.getValue();
+            synchronized (userRequests) {
+                // 如果最后一次请求超过1小时，移除该用户
+                return userRequests.isEmpty() || userRequests.peekLast() < cutoff;
+            }
+        });
     }
 }

@@ -3,6 +3,7 @@ package com.aimall.ai;
 import cn.hutool.json.JSONUtil;
 import com.aimall.entity.KnowledgeChunk;
 import com.aimall.mapper.KnowledgeChunkMapper;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.Comparator;
@@ -18,6 +19,16 @@ public class VectorStore {
     private final KnowledgeChunkMapper knowledgeChunkMapper;
     private final DeepSeekClient deepSeekClient;
 
+    // P1-12 修复：RAG 权重可配置
+    @Value("${aimall.rag.vector-weight:0.78}")
+    private double defaultVectorWeight;
+
+    @Value("${aimall.rag.lexical-weight:0.22}")
+    private double defaultLexicalWeight;
+
+    @Value("${aimall.rag.rerank-bonus:0.08}")
+    private double defaultRerankBonus;
+
     public VectorStore(KnowledgeChunkMapper knowledgeChunkMapper, DeepSeekClient deepSeekClient) {
         this.knowledgeChunkMapper = knowledgeChunkMapper;
         this.deepSeekClient = deepSeekClient;
@@ -28,7 +39,8 @@ public class VectorStore {
     }
 
     public List<KnowledgeChunk> search(String query, int topK, Set<Long> allowedDocIds) {
-        return search(query, topK, allowedDocIds, 0.78, 0.22, 0.08);
+        // P1-12 修复：使用可配置的权重参数
+        return search(query, topK, allowedDocIds, defaultVectorWeight, defaultLexicalWeight, defaultRerankBonus);
     }
 
     List<KnowledgeChunk> searchVectorOnly(String query, int topK, Set<Long> allowedDocIds) {
