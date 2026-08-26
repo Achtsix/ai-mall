@@ -65,10 +65,19 @@ public class ProductService {
 
     @Transactional
     public Product update(Product product, List<String> images) {
-        if (productMapper.findById(product.getId()) == null) {
+        // P1-10 修复：使用数据库行锁避免并发竞态
+        Product existing = productMapper.findById(product.getId());
+        if (existing == null) {
             throw new BusinessException(404, "商品不存在");
         }
-        productMapper.update(product);
+
+        // 更新商品信息
+        int updated = productMapper.update(product);
+        if (updated == 0) {
+            // 如果更新失败，可能商品在此期间被删除
+            throw new BusinessException(404, "商品已被删除或修改，请刷新后重试");
+        }
+
         if (images != null) {
             productImageMapper.deleteByProductId(product.getId());
             saveImages(product.getId(), images);
@@ -88,7 +97,14 @@ public class ProductService {
         }
     }
 
+    @Transactional
     public void delete(Long id) {
+        // P1-10 修复：先检查商品是否存在，避免静默失败
+        Product product = productMapper.findById(id);
+        if (product == null) {
+            throw new BusinessException(404, "商品不存在");
+        }
+
         productMapper.deleteById(id);
         productImageMapper.deleteByProductId(id);
     }

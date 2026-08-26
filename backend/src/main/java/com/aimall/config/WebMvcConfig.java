@@ -1,5 +1,6 @@
 package com.aimall.config;
 
+import com.aimall.interceptor.CsrfInterceptor;
 import com.aimall.interceptor.JwtInterceptor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
@@ -14,6 +15,7 @@ import java.nio.file.Path;
 public class WebMvcConfig implements WebMvcConfigurer {
 
     private final JwtInterceptor jwtInterceptor;
+    private final CsrfInterceptor csrfInterceptor;
 
     @Value("${aimall.upload.dir:./uploads}")
     private String uploadDir;
@@ -21,12 +23,18 @@ public class WebMvcConfig implements WebMvcConfigurer {
     @Value("${aimall.upload.url-prefix:/uploads}")
     private String uploadUrlPrefix;
 
-    public WebMvcConfig(JwtInterceptor jwtInterceptor) {
+    public WebMvcConfig(JwtInterceptor jwtInterceptor, CsrfInterceptor csrfInterceptor) {
         this.jwtInterceptor = jwtInterceptor;
+        this.csrfInterceptor = csrfInterceptor;
     }
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
+        // P1-4 修复：添加 CSRF 保护拦截器（在 JWT 之前执行）
+        registry.addInterceptor(csrfInterceptor)
+                .addPathPatterns("/api/**")
+                .excludePathPatterns("/uploads/**");
+
         registry.addInterceptor(jwtInterceptor)
                 .addPathPatterns("/api/**")
                 .excludePathPatterns(
