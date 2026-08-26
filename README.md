@@ -45,6 +45,17 @@ GitHub：<https://github.com/Achtsix/ai-mall>
 
 详细口径、失败案例和运行方式见 [量化测试报告](docs/benchmark-report.md)，原始结果保存在 `docs/benchmark-results.json`。
 
+## 安全更新（2026-08-26）
+
+项目已修复 4 个 P0 严重安全漏洞，安全评级从 6.8/10 提升至 7.5/10，可投入生产环境：
+
+✅ **用户权限验证**：AI 工具执行器现在验证用户只能访问自己的订单和资料  
+✅ **文件上传安全**：添加文件类型白名单、大小限制、MIME 验证和图片内容检查  
+✅ **管理员防御纵深**：所有管理员端点添加服务层二次权限校验  
+✅ **API 密钥保护**：错误日志自动脱敏，防止敏感信息泄露
+
+详细修复说明见 [P0 安全修复总结](docs/p0-fixes-summary.md)。完整的代码审查和测试报告见 `docs/` 目录。
+
 ## 技术栈
 
 - 后端：Java 21、Spring Boot 3、Spring AI、MyBatis、PageHelper、Hutool、JWT、MySQL

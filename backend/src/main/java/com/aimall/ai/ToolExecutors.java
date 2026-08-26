@@ -2,6 +2,7 @@ package com.aimall.ai;
 
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
+import com.aimall.common.UserContext;
 import com.aimall.entity.AfterSaleRule;
 import com.aimall.entity.Order;
 import com.aimall.entity.OrderItem;
@@ -87,6 +88,20 @@ public class ToolExecutors {
     public Map<String, Object> getUserProfile(String argsJson) {
         JSONObject args = JSONUtil.parseObj(argsJson);
         Long userId = args.getLong("userId");
+
+        // P0 安全修复：验证用户权限，只能查询自己的资料
+        Long currentUserId = UserContext.getUserId();
+        if (currentUserId == null) {
+            Map<String, Object> error = new HashMap<>();
+            error.put("error", "未登录");
+            return error;
+        }
+        if (!currentUserId.equals(userId)) {
+            Map<String, Object> error = new HashMap<>();
+            error.put("error", "无权访问其他用户的资料");
+            return error;
+        }
+
         List<Order> orders = userId == null ? List.of() : orderMapper.findByUserId(userId);
         List<OrderItem> purchasedItems = userId == null ? List.of() : orderItemMapper.findByUserId(userId);
         List<com.aimall.entity.ProductFavorite> favorites = userId == null ? List.of() : productFavoriteMapper.findByUserId(userId);
@@ -160,6 +175,18 @@ public class ToolExecutors {
             result.put("error", "订单不存在");
             return result;
         }
+
+        // P0 安全修复：验证订单所有权，只能查询自己的订单
+        Long currentUserId = UserContext.getUserId();
+        if (currentUserId == null) {
+            result.put("error", "未登录");
+            return result;
+        }
+        if (!currentUserId.equals(order.getUserId())) {
+            result.put("error", "无权访问此订单");
+            return result;
+        }
+
         result.put("orderNo", order.getOrderNo());
         result.put("status", order.getStatus());
         result.put("payAmount", order.getPayAmount());

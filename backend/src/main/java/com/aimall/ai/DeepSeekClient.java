@@ -114,8 +114,10 @@ public class DeepSeekClient {
                     .retrieve()
                     .body(Map.class);
         } catch (RestClientResponseException e) {
+            // P0 安全修复：脱敏响应体，避免 API 密钥泄露到日志
+            String safeResponseBody = sanitizeLogContent(e.getResponseBodyAsString());
             log.error("AI upstream request failed: status={}, url={}, body={}",
-                    e.getStatusCode().value(), url, e.getResponseBodyAsString());
+                    e.getStatusCode().value(), url, safeResponseBody);
             int status = e.getStatusCode().value();
             String message = status == 401 || status == 403
                     ? "AI API Key 无效或无权限，请重新配置"
@@ -224,6 +226,37 @@ public class DeepSeekClient {
 
     private static String firstNonBlank(String value, String fallback) {
         return value == null || value.isBlank() ? fallback : value;
+    }
+
+    /**
+     * P0 安全修复：脱敏日志内容，移除敏感信息
+     * 移除可能的 API Key、Token 等敏感字段
+     */
+    private String sanitizeLogContent(String content) {
+        if (content == null || content.isEmpty()) {
+            return content;
+        }
+
+        // 脱敏常见的敏感字段
+        String sanitized = content;
+
+        // 脱敏 Bearer Token
+        sanitized = sanitized.replaceAll("Bearer\\s+[A-Za-z0-9_\\-\\.]+", "Bearer [REDACTED]");
+
+        // 脱敏 API Key 格式（sk-xxx, key-xxx 等）
+        sanitized = sanitized.replaceAll("(\"api[_-]?key\"\\s*:\\s*\")([^\"]+)(\")", "$1[REDACTED]$3");
+        sanitized = sanitized.replaceAll("(\"token\"\\s*:\\s*\")([^\"]+)(\")", "$1[REDACTED]$3");
+        sanitized = sanitized.replaceAll("(\"authorization\"\\s*:\\s*\")([^\"]+)(\")", "$1[REDACTED]$3");
+
+        // 脱敏 sk- 开头的密钥
+        sanitized = sanitized.replaceAll("sk-[A-Za-z0-9]{20,}", "sk-[REDACTED]");
+
+        // 限制日志长度，避免超大响应体
+        if (sanitized.length() > 1000) {
+            sanitized = sanitized.substring(0, 1000) + "... [truncated]";
+        }
+
+        return sanitized;
     }
 
     @SuppressWarnings("unchecked")
