@@ -40,9 +40,29 @@ const router = createRouter({
   routes
 })
 
+function clearLoginCache() {
+  localStorage.removeItem('token')
+  localStorage.removeItem('role')
+  localStorage.removeItem('userInfo')
+}
+
+function isUsableToken(token) {
+  if (!token) return false
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')))
+    return typeof payload.exp === 'number' && payload.exp * 1000 > Date.now()
+  } catch {
+    return false
+  }
+}
+
 router.beforeEach((to) => {
-  const token = localStorage.getItem('token')
+  let token = localStorage.getItem('token')
   const role = localStorage.getItem('role')
+  if (token && !isUsableToken(token)) {
+    clearLoginCache()
+    token = ''
+  }
   if (token && (to.path === '/login' || to.path === '/register')) {
     return role === 'ADMIN' ? '/admin' : '/'
   }

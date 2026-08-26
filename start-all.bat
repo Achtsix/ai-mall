@@ -4,7 +4,7 @@ cd /d %~dp0
 echo ============================================================
 echo  AI Mall One-Click Startup
 echo  1. Make sure MySQL is running and init.sql is imported
-echo  2. Configure DB password and DeepSeek API Key in application.yml
+echo  2. Configure local-only credentials and AI API Key in backend\local-env.bat
 echo ============================================================
 echo Opening backend window...
 start "AI Mall Backend" cmd /k "cd /d %~dp0backend && start-backend.bat"
